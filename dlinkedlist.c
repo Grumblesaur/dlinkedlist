@@ -14,7 +14,7 @@ struct ll {
 
 
 int add_node(struct ll **list, int y) {
-	struct ll * currptr, * temp;
+	struct ll * currptr, * prevptr;
 //	printf("Constructed pointer variables.\n");
 		
 	struct ll * newptr = (struct ll *) malloc(sizeof(struct ll));
@@ -31,11 +31,30 @@ int add_node(struct ll **list, int y) {
 		*list = newptr;
 		return 1;
 	}
-	//list is non-empty
-	newptr->prev = NULL;
-	newptr->next = currptr;
-	*list = newptr;
 	
+	if (y < currptr->data) {
+		newptr->next = currptr;
+		currptr->prev = newptr;
+		*list = newptr;
+		return 1;
+	}
+	
+	prevptr = NULL;
+		
+	while (y >= currptr->data) {
+		if (currptr->next == NULL) {
+			currptr->next = newptr;
+			newptr->prev = currptr;
+			return 1;
+		}
+		prevptr = currptr;
+		currptr = currptr->next;
+	}
+	
+	prevptr->next = newptr;
+	newptr->prev = prevptr;
+	newptr->next = currptr;
+	currptr->prev = currptr;
 	return 1;
 }
 
@@ -43,16 +62,15 @@ void remove_node(struct ll **list, int z) {
 	struct ll * prevnode;
 	struct ll * currnode;
 	struct ll * temp;
-	
 	if ((*list)->data == z) {
 		temp = *list;
 		*list = (*list)->next;
 		free(temp);
 		return;
 	}
+	
 	prevnode = (*list);
 	currnode = (*list)->next;
-	
 	while (currnode->data != z) {
 		if (currnode->next == NULL) {
 			return;
@@ -60,13 +78,16 @@ void remove_node(struct ll **list, int z) {
 		prevnode = currnode;
 		currnode = currnode->next;
 	}
-	
 	temp = currnode;
-	prevnode->next = currnode->next;
-	currnode->next->prev = prevnode;
-	
+	struct ll * nextnode = currnode->next;
+	if (nextnode == NULL) {
+		prevnode->next = NULL;
+		return;
+	} else {
+		prevnode->next = nextnode;
+		nextnode->prev = prevnode;
+	}
 	free(temp);
-	
 	return;
 }
 
