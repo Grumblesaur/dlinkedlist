@@ -5,59 +5,107 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-struct Node {
-	struct Node * prev;
-	struct Node * next;
+struct ll {
 	int data;
+	
+	struct ll * prev;
+	struct ll * next;
 };
 
-struct DLinkedList {
-	struct Node * head;
-};
 
-struct Node * add_node(struct DLinkedList * dll, int value) {
-	struct Node * temp = (struct Node *) malloc(sizeof(struct Node));
-	temp->data = value;
-
-	// attach node to front of list when empty
-	if (dll->head == NULL) {
-		dll->head = temp;
-		dll->head->data = value;
-		dll->head->prev = NULL;
-		return temp;
+int add_node(struct ll **list, int y) {
+	struct ll * nextptr;
+	struct ll * prevptr;
+	struct ll * currptr;
+//	printf("Constructed pointer variables.\n");
+		
+	struct ll * newptr = (struct ll *) malloc(sizeof(struct ll));
+	if (newptr == NULL) {
+		return 0;
 	}
+//	printf("Successfully created a new node.\n");
+	newptr->data = y;
+	newptr->next = NULL;
 	
-	// cover edge case where value is less than first in line
-	struct Node * curr = dll->head;
-	if (curr->data > value) {
-		// make it first in line
-		dll->head = temp;
-		// reassign pointers
-		temp->next = curr;
-		curr->prev = temp;
-		temp->prev = NULL;
-		return temp;
-	}
+	currptr = *list;
+	prevptr = NULL;
 	
-	while (curr->next != NULL) {
-		if (value <= curr->data) {
-			curr->prev->next = temp;
-			temp->prev = curr->prev;
-			curr->prev = temp;
-			temp->next = curr;
+	// this is the start of the list
+//	printf("Starting add procedure.\n");
+	if (currptr == NULL) { 
+//		printf("Adding to empty list.\n");
+		*list = newptr;
+		return 1;
+	} else {
+		if (currptr->data >= y) {
+//			printf("Adding underneath list.\n");
+			newptr->prev = NULL;
+			newptr->next = currptr;
+			currptr->prev = newptr;
+			*list = newptr;
+			return 1;
+		} else if ((currptr->data < y) && (currptr->next == NULL)) {
+//			printf("Adding onto singleton list.\n");
+			currptr->next = newptr;
+			newptr->prev = currptr;
+			return 1;
+		} else {
+//			printf("General add case.\n");
+			while (currptr->next != NULL) {
+				if (currptr->data < y) {
+					struct ll * temp;
+					temp = currptr->next;
+					currptr->next = newptr;
+					newptr->prev = currptr;
+					newptr->next = temp;
+					return 1;
+				}
+			}
 		}
-		curr = curr->next;
 	}
-	
-	if (curr->next == NULL && value > curr->data) {
-		curr->next = temp;
-		temp->prev = curr;
-		temp->next = NULL;
-	}
-
-	return temp;
-	
+//	printf("node was created, list was not expanded.\n");
+	return -1; // list was not expanded ==> logic incomplete
 }
 
+void remove_node(struct ll **list, int z) {
+	struct ll * prevnode;
+	struct ll * currnode;
+	struct ll * temp;
+	
+	if ((*list)->data == z) {
+		temp = *list;
+		*list = (*list)->next;
+		free(temp);
+		return;
+	} else {
+		prevnode = (*list);
+		currnode = (*list)->next;
+		
+		while ((currnode->data != z) && (currnode->next != NULL)) {
+			prevnode = currnode;
+			currnode = currnode->next;
+		}
+		
+		if (currnode->data == z) {
+			temp = currnode;
+			prevnode->next = currnode->next;
+			if (currnode->next != NULL) {
+				currnode->next->prev = prevnode;
+			}
+			free(temp);
+			return;
+		}
+	}
+	return;
+}
 
-
+void print_list(struct ll * list) {
+	struct ll * currnode;
+	while (currnode->next != NULL) {
+		printf("%d\n", currnode->data);
+		currnode = currnode->next;
+	}
+	printf("%d\n\n", currnode->data);
+	
+	return;
+}
