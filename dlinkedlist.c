@@ -14,9 +14,7 @@ struct ll {
 
 
 int add_node(struct ll **list, int y) {
-	struct ll * nextptr;
-	struct ll * prevptr;
-	struct ll * currptr;
+	struct ll * currptr, * temp;
 //	printf("Constructed pointer variables.\n");
 		
 	struct ll * newptr = (struct ll *) malloc(sizeof(struct ll));
@@ -28,43 +26,17 @@ int add_node(struct ll **list, int y) {
 	newptr->next = NULL;
 	
 	currptr = *list;
-	prevptr = NULL;
-	
-	// this is the start of the list
-//	printf("Starting add procedure.\n");
-	if (currptr == NULL) { 
-//		printf("Adding to empty list.\n");
+	//list is empty
+	if (*list == NULL) {
 		*list = newptr;
 		return 1;
-	} else {
-		if (currptr->data >= y) {
-//			printf("Adding underneath list.\n");
-			newptr->prev = NULL;
-			newptr->next = currptr;
-			currptr->prev = newptr;
-			*list = newptr;
-			return 1;
-		} else if ((currptr->data < y) && (currptr->next == NULL)) {
-//			printf("Adding onto singleton list.\n");
-			currptr->next = newptr;
-			newptr->prev = currptr;
-			return 1;
-		} else {
-//			printf("General add case.\n");
-			while (currptr->next != NULL) {
-				if (currptr->data < y) {
-					struct ll * temp;
-					temp = currptr->next;
-					currptr->next = newptr;
-					newptr->prev = currptr;
-					newptr->next = temp;
-					return 1;
-				}
-			}
-		}
 	}
-//	printf("node was created, list was not expanded.\n");
-	return -1; // list was not expanded ==> logic incomplete
+	//list is non-empty
+	newptr->prev = NULL;
+	newptr->next = currptr;
+	*list = newptr;
+	
+	return 1;
 }
 
 void remove_node(struct ll **list, int z) {
@@ -77,30 +49,33 @@ void remove_node(struct ll **list, int z) {
 		*list = (*list)->next;
 		free(temp);
 		return;
-	} else {
-		prevnode = (*list);
-		currnode = (*list)->next;
-		
-		while ((currnode->data != z) && (currnode->next != NULL)) {
-			prevnode = currnode;
-			currnode = currnode->next;
-		}
-		
-		if (currnode->data == z) {
-			temp = currnode;
-			prevnode->next = currnode->next;
-			if (currnode->next != NULL) {
-				currnode->next->prev = prevnode;
-			}
-			free(temp);
+	}
+	prevnode = (*list);
+	currnode = (*list)->next;
+	
+	while (currnode->data != z) {
+		if (currnode->next == NULL) {
 			return;
 		}
+		prevnode = currnode;
+		currnode = currnode->next;
 	}
+	
+	temp = currnode;
+	prevnode->next = currnode->next;
+	currnode->next->prev = prevnode;
+	
+	free(temp);
+	
 	return;
 }
 
 void print_list(struct ll * list) {
-	struct ll * currnode;
+	struct ll * currnode = list;
+	if (list == NULL) {
+		printf("List is empty!\n");
+		return;
+	}
 	while (currnode->next != NULL) {
 		printf("%d\n", currnode->data);
 		currnode = currnode->next;
