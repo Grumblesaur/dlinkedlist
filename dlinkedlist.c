@@ -15,13 +15,11 @@ struct ll {
 
 int add_node(struct ll **list, int y) {
 	struct ll * currptr, * prevptr;
-//	printf("Constructed pointer variables.\n");
-		
+	// create new node; error check	
 	struct ll * newptr = (struct ll *) malloc(sizeof(struct ll));
 	if (newptr == NULL) {
 		return 0;
 	}
-//	printf("Successfully created a new node.\n");
 	newptr->data = y;
 	newptr->next = NULL;
 	
@@ -31,7 +29,7 @@ int add_node(struct ll **list, int y) {
 		*list = newptr;
 		return 1;
 	}
-	
+	// if new node's data should come before the current first-in-line	
 	if (y < currptr->data) {
 		newptr->next = currptr;
 		currptr->prev = newptr;
@@ -40,7 +38,7 @@ int add_node(struct ll **list, int y) {
 	}
 	
 	prevptr = NULL;
-		
+	// anywhere else-case	
 	while (y >= currptr->data) {
 		if (currptr->next == NULL) {
 			currptr->next = newptr;
@@ -62,6 +60,7 @@ void remove_node(struct ll **list, int z) {
 	struct ll * prevnode;
 	struct ll * currnode;
 	struct ll * temp;
+	// value is first in line
 	if ((*list)->data == z) {
 		temp = *list;
 		*list = (*list)->next;
@@ -69,6 +68,7 @@ void remove_node(struct ll **list, int z) {
 		return;
 	}
 	
+	// locate node if elsewhere
 	prevnode = (*list);
 	currnode = (*list)->next;
 	while (currnode->data != z) {
@@ -78,6 +78,8 @@ void remove_node(struct ll **list, int z) {
 		prevnode = currnode;
 		currnode = currnode->next;
 	}
+	
+	// remove it, stitch the list together, and free memory
 	temp = currnode;
 	struct ll * nextnode = currnode->next;
 	if (nextnode == NULL) {
