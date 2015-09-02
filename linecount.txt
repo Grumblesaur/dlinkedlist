@@ -1,0 +1,9 @@
+109 lines in file 'dlinkedlist.c'.
+86 lines of code.
+10 lines of comments.
+13 lines of whitespace.
+
+109 lines in files overall.
+86 lines of code.
+10 lines of comments.
+13 lines of whitespace.
